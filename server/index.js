@@ -10,6 +10,7 @@
 // before relying on this in production — memory resets on every restart/deploy.
 
 require('dotenv').config();
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const crypto = require('crypto');
@@ -57,6 +58,11 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), (req,
 
 app.use(cors({ origin: SITE_URL }));
 app.use(express.json());
+
+// Serve the frontend (index.html + any assets) from the repo root, one
+// folder up from this server/ directory. Same service, same URL, no
+// separate static site needed.
+app.use(express.static(path.join(__dirname, '..')));
 
 // Creates a Stripe Checkout Session for the $30 course
 app.post('/api/create-checkout-session', async (req, res) => {

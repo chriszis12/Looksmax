@@ -393,12 +393,11 @@
 
 <script>
   // ======================================================================
-  // Set this to your deployed backend URL (see /server). Leaving it blank
-  // runs the page in demo mode: the buy button and code redemption will
-  // explain what to plug in instead of pretending to unlock anything.
+  // Frontend and backend are the same Render service now, so API calls just
+  // use relative paths like /api/... — no URL to configure here.
   // No secret, code, or Stripe key lives in this file — that's the point.
   // ======================================================================
-  const API_BASE = ""; // e.g. "https://your-backend.onrender.com"
+  const API_BASE = "";
 
   function setCookie(name, value, days){
     const d = new Date();
@@ -444,7 +443,7 @@
   // Returning from Stripe Checkout success_url, e.g. ?session_id=cs_test_123
   const params = new URLSearchParams(window.location.search);
   const sessionId = params.get('session_id');
-  if (sessionId && API_BASE) {
+  if (sessionId) {
     fetch(API_BASE + '/api/verify-session?session_id=' + encodeURIComponent(sessionId))
       .then(r => r.json())
       .then(data => {
@@ -457,11 +456,6 @@
   }
 
   buyBtn.addEventListener('click', async () => {
-    if (!API_BASE) {
-      buyMsg.textContent = 'Demo mode: set API_BASE to your deployed /server URL to go live.';
-      buyMsg.className = 'msg err';
-      return;
-    }
     buyMsg.textContent = 'Redirecting to Stripe…';
     buyMsg.className = 'msg';
     try {
@@ -478,11 +472,6 @@
   redeemBtn.addEventListener('click', async () => {
     const val = accessCode.value.trim();
     if (!val) return;
-    if (!API_BASE) {
-      codeMsg.textContent = 'Demo mode: set API_BASE so codes can be checked by the server.';
-      codeMsg.className = 'msg err';
-      return;
-    }
     try {
       const res = await fetch(API_BASE + '/api/redeem-code', {
         method: 'POST', headers: {'Content-Type':'application/json'},
